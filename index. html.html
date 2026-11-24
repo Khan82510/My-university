@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus University | Online Learning & Student Portal</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        uni: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#0f172a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-blue-600 selection:text-white">
+
+    <!-- Toast Notification Container (Replaces alert()) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+    <!-- Main App Wrapper -->
+    <div class="min-h-screen flex flex-col lg:flex-row">
+
+        <!-- Mobile Header -->
+        <header class="lg:hidden bg-slate-900 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 shadow-md">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-bold text-lg shadow">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-base leading-tight">Nexus University</h1>
+                    <p class="text-xs text-slate-400">Online Campus</p>
+                </div>
+            </div>
+            <button id="mobile-menu-btn" class="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 focus:outline-none">
+                <i class="fa-solid fa-bars text-lg"></i>
+            </button>
+        </header>
+
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-30 w-72 bg-slate-900 text-slate-300 transform -translate-x-full lg:translate-x-0 lg:static lg:inset-0 transition-transform duration-300 ease-in-out flex flex-col justify-between border-r border-slate-800">
+            <div>
+                <!-- University Brand -->
+                <div class="p-6 hidden lg:flex items-center gap-3.5 border-b border-slate-800/80">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-600/20">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-extrabold text-white text-lg tracking-tight">Nexus University</h1>
+                        <span class="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Portal Live
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Role Switcher (Quick Demo Feature) -->
+                <div class="px-4 pt-5 pb-2">
+                    <div class="bg-slate-800/70 p-2.5 rounded-xl border border-slate-700/60">
+                        <label class="block text-[11px] uppercase tracking-wider font-semibold text-slate-400 mb-1.5 px-1">Active Portal Mode</label>
+                        <div class="grid grid-cols-2 gap-1 bg-slate-900 p-1 rounded-lg">
+                            <button onclick="switchRole('student')" id="role-student-btn" class="py-1.5 px-2 text-xs font-semibold rounded-md bg-blue-600 text-white transition-all shadow">
+                                <i class="fa-solid fa-user-graduate mr-1"></i> Student
+                            </button>
+                            <button onclick="switchRole('faculty')" id="role-faculty-btn" class="py-1.5 px-2 text-xs font-semibold rounded-md text-slate-400 hover:text-white transition-all">
+                                <i class="fa-solid fa-chalkboard-user mr-1"></i> Faculty
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="p-4 space-y-1.5">
+                    <button onclick="navigate('dashboard')" data-nav="dashboard" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium bg-blue-600 text-white shadow-md shadow-blue-600/20 transition-all">
+                        <i class="fa-solid fa-grid-2 w-5 text-center"></i>
+                        <span>Dashboard</span>
+                    </button>
+                    <button onclick="navigate('live-class')" data-nav="live-class" class="nav-btn w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800/80 hover:text-white transition-all">
+                        <div class="flex items-center gap-3.5">
+                            <i class="fa-solid fa-video w-5 text-center text-rose-400"></i>
+                            <span>Live Classroom</span>
+                        </div>
+                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-full animate-pulse">Live</span>
+                    </button>
+                    <button onclick="navigate('assignments')" data-nav="assignments" class="nav-btn w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800/80 hover:text-white transition-all">
+                        <div class="flex items-center gap-3.5">
+                            <i class="fa-solid fa-file-pen w-5 text-center text-amber-400"></i>
+                            <span>Online Works & Tasks</span>
+                        </div>
+                        <span id="nav-pending-badge" class="px-2 py-0.5 text-xs font-bold bg-slate-800 text-slate-300 rounded-full">3</span>
+                    </button>
+                    <button onclick="navigate('courses')" data-nav="courses" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800/80 hover:text-white transition-all">
+                        <i class="fa-solid fa-book-open w-5 text-center text-emerald-400"></i>
+                        <span>Courses & Syllabus</span>
+                    </button>
+                    <button onclick="navigate('library')" data-nav="library" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800/80 hover:text-white transition-all">
+                        <i class="fa-solid fa-book-bookmark w-5 text-center text-purple-400"></i>
+                        <span>Digital Library</span>
+                    </button>
+                    <button onclick="navigate('notices')" data-nav="notices" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-slate-300 hover:bg-slate-800/80 hover:text-white transition-all">
+                        <i class="fa-solid fa-bullhorn w-5 text-center text-sky-400"></i>
+                        <span>Campus Notices</span>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- User Profile Footer -->
+            <div class="p-4 border-t border-slate-800">
+                <div class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-800/50">
+                    <img id="user-avatar" src="https://placehold.co/100x100/2563eb/ffffff?text=AZ" alt="User" class="w-10 h-10 rounded-full object-cover border-2 border-blue-500">
+                    <div class="min-w-0 flex-1">
+                        <p id="user-name" class="text-sm font-semibold text-white truncate">Ali Zain</p>
+                        <p id="user-meta" class="text-xs text-slate-400 truncate">BS Computer Science • Sem 6</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Mobile Sidebar Backdrop -->
+        <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-20 hidden lg:hidden"></div>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
+            
+            <!-- Top Bar -->
+            <div class="bg-white border-b border-slate-200 px-4 sm:px-8 py-4 flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <h2 id="page-title" class="text-xl sm:text-2xl font-bold text-slate-900">Academic Dashboard</h2>
+                    <p id="page-subtitle" class="text-xs sm:text-sm text-slate-500">Welcome back! Here is your real-time schedule and pending online work.</p>
+                </div>
+
+                <!-- Quick Action Buttons -->
+                <div class="flex items-center gap-2.5">
+                    <button onclick="navigate('live-class')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-semibold shadow-sm shadow-rose-600/20 transition-all cursor-pointer">
+                        <i class="fa-solid fa-video"></i>
+                        <span>Join Live Class</span>
+                    </button>
+                    <button id="faculty-create-btn" onclick="openModal('create-work-modal')" class="hidden inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold shadow-sm shadow-blue-600/20 transition-all cursor-pointer">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Assign Work</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dynamic Views Container -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6">
+
+                <!-- ==================== 1. DASHBOARD VIEW ==================== -->
+                <section id="view-dashboard" class="space-y-6">
+                    <!-- Quick Metrics -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-book-open"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Enrolled Courses</p>
+                                <p class="text-2xl font-extrabold text-slate-900">6 Active</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-clock"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Pending Works</p>
+                                <p id="dash-pending-count" class="text-2xl font-extrabold text-slate-900">3 Tasks</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Attendance Rate</p>
+                                <p class="text-2xl font-extrabold text-slate-900">94.2%</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-award"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Current CGPA</p>
+                                <p class="text-2xl font-extrabold text-slate-900">3.82 / 4.0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Now Banner -->
+                    <div class="bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 rounded-2xl p-6 text-white shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <div class="space-y-2">
+                            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-bold">
+                                <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span> HAPPENING RIGHT NOW
+                            </div>
+                            <h3 class="text-xl sm:text-2xl font-bold">CS-302: Artificial Intelligence & Neural Networks</h3>
+                            <p class="text-sm text-slate-300">Prof. Dr. Sarah Ahmed • Interactive Lecture + Live Code Lab • 142 Students Online</p>
+                        </div>
+                        <button onclick="navigate('live-class')" class="w-full md:w-auto px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer">
+                            <i class="fa-solid fa-door-open"></i> Enter Virtual Classroom
+                        </button>
+                    </div>
+
+                    <!-- Two Column Split: Upcoming Classes & Urgent Works -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Today's Online Class Schedule -->
+                        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-bold text-lg text-slate-900">Today's Online Classes</h3>
+                                <span class="text-xs font-semibold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg">Live Schedule</span>
+                            </div>
+                            <div id="dashboard-schedule-list" class="space-y-3">
+                                <!-- Populated via JS -->
+                            </div>
+                        </div>
+
+                        <!-- Quick Submit Assignments -->
+                        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-bold text-lg text-slate-900">Quick Online Work Submission</h3>
+                                <button onclick="navigate('assignments')" class="text-xs font-semibold text-blue-600 hover:underline">View All</button>
+                            </div>
+                            <div id="dashboard-works-list" class="space-y-3">
+                                <!-- Populated via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================== 2. LIVE CLASSROOM VIEW ==================== -->
+                <section id="view-live-class" class="hidden space-y-6">
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                        
+                        <!-- Video Stage & Controls (2 cols) -->
+                        <div class="xl:col-span-2 space-y-4">
+                            <div class="bg-slate-900 rounded-2xl overflow-hidden shadow-xl border border-slate-800 relative aspect-video flex flex-col justify-between p-4 sm:p-6">
+                                <!-- Top Overlay -->
+                                <div class="flex items-center justify-between z-10">
+                                    <div class="flex items-center gap-2.5 bg-slate-950/70 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-white/10">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+                                        <span class="text-xs font-bold text-white tracking-wide">LIVE • CS-302 AI Lecture</span>
+                                    </div>
+                                    <div class="bg-slate-950/70 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 text-xs text-slate-300 font-medium">
+                                        <i class="fa-solid fa-users text-blue-400 mr-1.5"></i> <span id="live-viewer-count">143</span> Attending
+                                    </div>
+                                </div>
+
+                                <!-- Simulated Interactive Slide / Whiteboard Screen -->
+                                <div id="live-stage-canvas" class="my-auto text-center px-4 py-6 rounded-xl bg-slate-800/60 border border-slate-700/60 backdrop-blur-xs max-w-2xl mx-auto w-full">
+                                    <span class="text-xs font-bold uppercase tracking-widest text-blue-400">Professor's Shared Screen • Slide 14/28</span>
+                                    <h4 class="text-lg sm:text-2xl font-extrabold text-white mt-2">Backpropagation & Gradient Descent</h4>
+                                    <p class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
+                                        Computing the gradient of the loss function with respect to each weight by the chain rule, iterating backward from the output layer.
+                                    </p>
+                                    <div class="mt-4 inline-block bg-slate-950/80 px-4 py-2 rounded-lg font-mono text-xs sm:text-sm text-emerald-400 border border-emerald-500/30">
+                                        ∂L/∂w = (∂L/∂y) · (∂y/∂z) · (∂z/∂w)
+                                    </div>
+                                </div>
+
+                                <!-- Bottom Media Control Bar -->
+                                <div class="flex flex-wrap items-center justify-center gap-3 z-10">
+                                    <button onclick="toggleMediaBtn(this, 'Mic')" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs sm:text-sm font-semibold border border-slate-700 transition-all flex items-center gap-2 cursor-pointer">
+                                        <i class="fa-solid fa-microphone-slash text-rose-400"></i> <span>Muted</span>
+                                    </button>
+                                    <button onclick="toggleMediaBtn(this, 'Cam')" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs sm:text-sm font-semibold border border-slate-700 transition-all flex items-center gap-2 cursor-pointer">
+                                        <i class="fa-solid fa-video-slash text-rose-400"></i> <span>Cam Off</span>
+                                    </button>
+                                    <button onclick="raiseHand()" id="raise-hand-btn" class="px-4 py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 cursor-pointer">
+                                        <i class="fa-solid fa-hand"></i> <span>Raise Hand</span>
+                                    </button>
+                                    <button onclick="markAttendance()" id="attendance-btn" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-semibold shadow-lg shadow-emerald-600/20 transition-all flex items-center gap-2 cursor-pointer">
+                                        <i class="fa-solid fa-check-circle"></i> <span>Mark Attendance</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Quick Lecture Notes Download -->
+                            <div class="bg-white p-5 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                <div>
+                                    <h4 class="font-bold text-slate-900">Lecture 14: Neural Networks Slide Deck & Code</h4>
+                                    <p class="text-xs text-slate-500">Uploaded by Prof. Dr. Sarah Ahmed • PDF & Jupyter Notebook (4.2 MB)</p>
+                                </div>
+                                <button onclick="showToast('Downloading Lecture_14_Neural_Networks.zip...', 'success')" class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center gap-2 shrink-0 cursor-pointer">
+                                    <i class="fa-solid fa-download"></i> Download Resources
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Live Class Chat & Q&A (1 col) -->
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col h-[520px]">
+                            <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+                                <h3 class="font-bold text-slate-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-comments text-blue-600"></i> Live Class Discussion
+                                </h3>
+                                <span class="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md">Real-time</span>
+                            </div>
+
+                            <!-- Messages Feed -->
+                            <div id="live-chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/50">
+                                <!-- Populated via JS -->
+                            </div>
+
+                            <!-- Chat Input -->
+                            <form onsubmit="sendLiveChat(event)" class="p-3 border-t border-slate-200 bg-white rounded-b-2xl flex gap-2">
+                                <input type="text" id="live-chat-input" placeholder="Ask professor or class..." required
+                                    class="flex-1 px-3.5 py-2.5 text-sm bg-slate-100 border border-transparent focus:border-blue-500 focus:bg-white rounded-xl outline-none transition-all">
+                                <button type="submit" class="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-all cursor-pointer">
+                                    <i class="fa-solid fa-paper-plane"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================== 3. ONLINE WORKS & ASSIGNMENTS VIEW ==================== -->
+                <section id="view-assignments" class="hidden space-y-6">
+                    <!-- Filter Tabs -->
+                    <div class="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200">
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="filterWorks('all')" class="work-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white cursor-pointer" data-filter="all">All Works</button>
+                            <button onclick="filterWorks('pending')" class="work-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer" data-filter="pending">Pending</button>
+                            <button onclick="filterWorks('submitted')" class="work-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer" data-filter="submitted">Submitted</button>
+                        </div>
+                        <button onclick="openModal('create-work-modal')" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-plus"></i> Create New Online Work
+                        </button>
+                    </div>
+
+                    <!-- Assignments Grid -->
+                    <div id="assignments-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <!-- Populated via JS -->
+                    </div>
+                </section>
+
+                <!-- ==================== 4. COURSES & SYLLABUS VIEW ==================== -->
+                <section id="view-courses" class="hidden space-y-6">
+                    <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Populated via JS -->
+                    </div>
+                </section>
+
+                <!-- ==================== 5. DIGITAL LIBRARY VIEW ==================== -->
+                <section id="view-library" class="hidden space-y-6">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 flex flex-col sm:flex-row gap-4 justify-between items-center">
+                        <div class="relative w-full sm:w-96">
+                            <i class="fa-solid fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input type="text" id="library-search" onkeyup="renderLibrary()" placeholder="Search e-books, research papers, notes..."
+                                class="w-full pl-10 pr-4 py-2.5 bg-slate-100 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+                        </div>
+                        <span class="text-xs font-medium text-slate-500">Instant PDF Access • 24/7 Campus Cloud</span>
+                    </div>
+
+                    <div id="library-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <!-- Populated via JS -->
+                    </div>
+                </section>
+
+                <!-- ==================== 6. CAMPUS NOTICES VIEW ==================== -->
+                <section id="view-notices" class="hidden space-y-4">
+                    <div id="notices-list" class="space-y-4 max-w-4xl">
+                        <!-- Populated via JS -->
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ==================== MODAL: SUBMIT ONLINE WORK ==================== -->
+    <div id="submit-work-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-lg text-slate-900">Submit Online Work</h3>
+                <button onclick="closeModal('submit-work-modal')" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form onsubmit="handleWorkSubmission(event)" class="space-y-4">
+                <input type="hidden" id="submit-work-id">
+                <div>
+                    <p id="submit-work-title" class="font-semibold text-blue-700 text-sm"></p>
+                    <p id="submit-work-course" class="text-xs text-slate-500"></p>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Online Answer / Solution Text</label>
+                    <textarea id="submit-work-text" rows="4" required placeholder="Write your solution, code snippet, or project link here..."
+                        class="w-full p-3 rounded-xl border border-slate-300 text-sm focus:border-blue-500 outline-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Attach File (Optional)</label>
+                    <input type="file" id="submit-work-file" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('submit-work-modal')" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md cursor-pointer">
+                        <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Submit Now
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: CREATE NEW WORK (FACULTY / QUICK ADD) ==================== -->
+    <div id="create-work-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-lg text-slate-900">Publish New Online Assignment / Quiz</h3>
+                <button onclick="closeModal('create-work-modal')" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form onsubmit="handleCreateWork(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Course Code & Name</label>
+                    <select id="new-work-course" class="w-full p-2.5 rounded-xl border border-slate-300 text-sm outline-none focus:border-blue-500">
+                        <option value="CS-302 • Artificial Intelligence">CS-302 • Artificial Intelligence</option>
+                        <option value="SE-310 • Cloud Computing">SE-310 • Cloud Computing</option>
+                        <option value="CS-305 • Database Systems">CS-305 • Database Systems</option>
+                        <option value="MT-204 • Linear Algebra">MT-204 • Linear Algebra</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Task Title</label>
+                    <input type="text" id="new-work-title" required placeholder="e.g., Lab 05: Neural Network Classifier"
+                        class="w-full p-2.5 rounded-xl border border-slate-300 text-sm outline-none focus:border-blue-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Due Date</label>
+                        <input type="text" id="new-work-due" required value="Tomorrow, 11:59 PM"
+                            class="w-full p-2.5 rounded-xl border border-slate-300 text-sm outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Total Marks</label>
+                        <input type="number" id="new-work-marks" required value="20"
+                            class="w-full p-2.5 rounded-xl border border-slate-300 text-sm outline-none focus:border-blue-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Instructions</label>
+                    <textarea id="new-work-desc" rows="3" required placeholder="Provide brief instructions for students..."
+                        class="w-full p-2.5 rounded-xl border border-slate-300 text-sm outline-none focus:border-blue-500"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('create-work-modal')" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md cursor-pointer">
+                        Publish Task
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // --- State Management ---
+        let currentRole = 'student';
+        let currentFilter = 'all';
+        let attendanceMarked = false;
+
+        const scheduleData = [
+            { id: 1, time: '09:00 AM - 10:30 AM', code: 'CS-302', title: 'Artificial Intelligence', instructor: 'Prof. Dr. Sarah Ahmed', status: 'live' },
+            { id: 2, time: '11:00 AM - 12:30 PM', code: 'SE-310', title: 'Cloud Computing & DevOps', instructor: 'Dr. Kamran Malik', status: 'upcoming' },
+            { id: 3, time: '02:00 PM - 03:30 PM', code: 'CS-305', title: 'Advanced Database Systems', instructor: 'Prof. Ayesha Tariq', status: 'upcoming' }
+        ];
+
+        let worksData = [
+            {
+                id: 101,
+                course: 'CS-302 • Artificial Intelligence',
+                title: 'Lab 04: Implementing A* Pathfinding Algorithm',
+                due: 'Today, 11:59 PM',
+                marks: 25,
+                status: 'pending',
+                desc: 'Submit your Python implementation along with time complexity analysis for heuristic search.'
+            },
+            {
+                id: 102,
+                course: 'SE-310 • Cloud Computing',
+                title: 'Docker Containerization & Microservices Report',
+                due: 'Nov 26, 2026',
+                marks: 30,
+                status: 'pending',
+                desc: 'Deploy a multi-container Node.js & Redis app and share your docker-compose configuration.'
+            },
+            {
+                id: 103,
+                course: 'CS-305 • Database Systems',
+                title: 'Online Quiz 03: Query Optimization & Indexing',
+                due: 'Nov 28, 2026',
+                marks: 15,
+                status: 'pending',
+                desc: 'Analyze B+ Tree indexing performance on 1 million relational records.'
+            },
+            {
+                id: 104,
+                course: 'MT-204 • Linear Algebra',
+                title: 'Eigenvalues & Matrix Decomposition Worksheet',
+                due: 'Submitted Nov 20',
+                marks: 20,
+                status: 'submitted',
+                submissionText: 'Completed all 5 SVD factorization proofs and attached MATLAB verification.'
+            }
+        ];
+
+        const coursesData = [
+            { code: 'CS-302', name: 'Artificial Intelligence', instructor: 'Prof. Dr. Sarah Ahmed', progress: 78, credits: 4, color: 'blue' },
+            { code: 'SE-310', name: 'Cloud Computing', instructor: 'Dr. Kamran Malik', progress: 65, credits: 3, color: 'indigo' },
+            { code: 'CS-305', name: 'Database Systems', instructor: 'Prof. Ayesha Tariq', progress: 82, credits: 4, color: 'emerald' },
+            { code: 'MT-204', name: 'Linear Algebra', instructor: 'Dr. Usman Ghani', progress: 90, credits: 3, color: 'purple' },
+            { code: 'HU-212', name: 'Technical Writing', instructor: 'Ms. Hina Raza', progress: 88, credits: 2, color: 'amber' },
+            { code: 'CS-309', name: 'Computer Networks', instructor: 'Dr. Bilal Hassan', progress: 71, credits: 3, color: 'rose' }
+        ];
+
+        const libraryData = [
+            { title: 'Artificial Intelligence: A Modern Approach', author: 'Stuart Russell & Peter Norvig', category: 'Computer Science', size: '18.4 MB' },
+            { title: 'Designing Data-Intensive Applications', author: 'Martin Kleppmann', category: 'Software Engineering', size: '12.1 MB' },
+            { title: 'Introduction to Linear Algebra (6th Ed.)', author: 'Gilbert Strang', category: 'Mathematics', size: '9.8 MB' },
+            { title: 'Clean Architecture & System Design', author: 'Robert C. Martin', category: 'Architecture', size: '7.5 MB' },
+            { title: 'Deep Learning Foundations & Concepts', author: 'Christopher M. Bishop', category: 'AI & ML', size: '22.0 MB' },
+            { title: 'Computer Networking: Top-Down Approach', author: 'James Kurose', category: 'Networks', size: '15.3 MB' }
+        ];
+
+        const noticesData = [
+            { title: 'Fall 2026 Mid-Term Online Examination Schedule Published', date: '2 Hours Ago', tag: 'Examination', urgent: true, body: 'All mid-term theory and practical evaluations will be conducted via the Nexus Online Proctored Portal starting December 5, 2026.' },
+            { title: 'National Hackathon & AI Innovation Summit Registration Open', date: 'Yesterday', tag: 'Campus Event', urgent: false, body: 'Students from all semesters can form teams of up to 4 members and register online before Friday.' },
+            { title: 'Digital Library Cloud Upgrade Completed', date: 'Nov 21, 2026', tag: 'IT Services', urgent: false, body: 'Over 45,000 new IEEE & ACM research journals are now accessible directly from your student dashboard.' }
+        ];
+
+        let chatMessages = [
+            { sender: 'Prof. Dr. Sarah Ahmed', role: 'faculty', text: 'Welcome everyone! Please confirm if the backpropagation formula on Slide 14 is clear.', time: '09:12 AM' },
+            { sender: 'Zainab Fatima', role: 'student', text: 'Yes Ma’am, crystal clear! Quick question: do we apply the learning rate before updating biases too?', time: '09:13 AM' },
+            { sender: 'Prof. Dr. Sarah Ahmed', role: 'faculty', text: 'Great question Zainab! Yes, biases are updated using the exact same learning rate.', time: '09:14 AM' }
+        ];
+
+        // --- Navigation Logic ---
+        function navigate(viewId) {
+            // Hide all sections
+            document.querySelectorAll('main section').forEach(sec => sec.classList.add('hidden'));
+            // Show selected section
+            const target = document.getElementById(`view-${viewId}`);
+            if (target) target.classList.remove('hidden');
+
+            // Update active sidebar button styling
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.dataset.nav === viewId) {
+                    btn.classList.add('bg-blue-600', 'text-white', 'shadow-md', 'shadow-blue-600/20');
+                    btn.classList.remove('text-slate-300', 'hover:bg-slate-800/80');
+                } else {
+                    btn.classList.remove('bg-blue-600', 'text-white', 'shadow-md', 'shadow-blue-600/20');
+                    btn.classList.add('text-slate-300', 'hover:bg-slate-800/80');
+                }
+            });
+
+            // Update Header Titles
+            const titles = {
+                'dashboard': ['Academic Dashboard', 'Welcome back! Here is your real-time schedule and pending online work.'],
+                'live-class': ['Live Virtual Classroom', 'Interactive HD streaming, shared whiteboard, and instant attendance.'],
+                'assignments': ['Online Works & Assignments', 'Submit tasks online, upload code/files, and track grades instantly.'],
+                'courses': ['Enrolled Courses & Syllabus', 'Access course modules, lecture recordings, and credit progress.'],
+                'library': ['University Digital Library', 'Download textbooks, research papers, and verified study guides.'],
+                'notices': ['Official Campus Notices', 'Stay updated with university announcements and exam schedules.']
+            };
+            if (titles[viewId]) {
+                document.getElementById('page-title').textContent = titles[viewId][0];
+                document.getElementById('page-subtitle').textContent = titles[viewId][1];
+            }
+
+            // Close mobile sidebar if open
+            closeMobileSidebar();
+        }
+
+        // --- Mobile Sidebar Toggle ---
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+            sidebar.classList.remove('-translate-x-full');
+            backdrop.classList.remove('hidden');
+        });
+        function closeMobileSidebar() {
+            sidebar.classList.add('-translate-x-full');
+            backdrop.classList.add('hidden');
+        }
+        backdrop.addEventListener('click', closeMobileSidebar);
+
+        // --- Role Switcher (Student vs Faculty) ---
+        function switchRole(role) {
+            currentRole = role;
+            const studentBtn = document.getElementById('role-student-btn');
+            const facultyBtn = document.getElementById('role-faculty-btn');
+            const facultyCreateBtn = document.getElementById('faculty-create-btn');
+
+            if (role === 'student') {
+                studentBtn.className = 'py-1.5 px-2 text-xs font-semibold rounded-md bg-blue-600 text-white transition-all shadow';
+                facultyBtn.className = 'py-1.5 px-2 text-xs font-semibold rounded-md text-slate-400 hover:text-white transition-all';
+                facultyCreateBtn.classList.add('hidden');
+                document.getElementById('user-name').textContent = 'Ali Zain';
+                document.getElementById('user-meta').textContent = 'BS Computer Science • Sem 6';
+                document.getElementById('user-avatar').src = 'https://placehold.co/100x100/2563eb/ffffff?text=AZ';
+                showToast('Switched to Student Portal View', 'info');
+            } else {
+                facultyBtn.className = 'py-1.5 px-2 text-xs font-semibold rounded-md bg-blue-600 text-white transition-all shadow';
+                studentBtn.className = 'py-1.5 px-2 text-xs font-semibold rounded-md text-slate-400 hover:text-white transition-all';
+                facultyCreateBtn.classList.remove('hidden');
+                document.getElementById('user-name').textContent = 'Prof. Dr. Sarah Ahmed';
+                document.getElementById('user-meta').textContent = 'Department of Computer Science';
+                document.getElementById('user-avatar').src = 'https://placehold.co/100x100/059669/ffffff?text=SA';
+                showToast('Switched to Faculty Portal View (You can assign works!)', 'info');
+            }
+            renderAssignments();
+        }
+
+        // --- Render Functions ---
+        function renderDashboard() {
+            // Schedule
+            const scheduleEl = document.getElementById('dashboard-schedule-list');
+            scheduleEl.innerHTML = scheduleData.map(item => `
+                <div class="p-3.5 rounded-xl border ${item.status === 'live' ? 'border-rose-200 bg-rose-50/40' : 'border-slate-100 bg-slate-50'} flex items-center justify-between gap-3">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-blue-600">${item.code}</span>
+                            <span class="text-xs text-slate-400">• ${item.time}</span>
+                        </div>
+                        <p class="font-bold text-sm text-slate-900 mt-0.5">${item.title}</p>
+                        <p class="text-xs text-slate-500">${item.instructor}</p>
+                    </div>
+                    ${item.status === 'live'
+                        ? `<button onclick="navigate('live-class')" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shrink-0 cursor-pointer">Join Live</button>`
+                        : `<span class="px-3 py-1.5 rounded-xl bg-slate-200/70 text-slate-600 text-xs font-semibold shrink-0">Scheduled</span>`
+                    }
+                </div>
+            `).join('');
+
+            // Pending Works Quick List
+            const pendingWorks = worksData.filter(w => w.status === 'pending');
+            document.getElementById('dash-pending-count').textContent = `${pendingWorks.length} Tasks`;
+            document.getElementById('nav-pending-badge').textContent = pendingWorks.length;
+
+            const dashWorksEl = document.getElementById('dashboard-works-list');
+            if (pendingWorks.length === 0) {
+                dashWorksEl.innerHTML = `<div class="p-6 text-center text-sm text-emerald-600 font-semibold bg-emerald-50 rounded-xl">All online works are submitted! Great job!</div>`;
+            } else {
+                dashWorksEl.innerHTML = pendingWorks.slice(0, 3).map(work => `
+                    <div class="p-3.5 rounded-xl border border-slate-100 bg-slate-50 flex items-center justify-between gap-3">
+                        <div class="min-w-0">
+                            <p class="text-xs font-semibold text-slate-500 truncate">${work.course}</p>
+                            <p class="font-bold text-sm text-slate-900 truncate">${work.title}</p>
+                            <p class="text-xs text-amber-600 font-medium mt-0.5"><i class="fa-regular fa-clock mr-1"></i>Due: ${work.due}</p>
+                        </div>
+                        <button onclick="openSubmitModal(${work.id})" class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shrink-0 cursor-pointer">
+                            Submit
+                        </button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function renderAssignments() {
+            const grid = document.getElementById('assignments-grid');
+            const filtered = worksData.filter(w => currentFilter === 'all' || w.status === currentFilter);
+
+            grid.innerHTML = filtered.map(work => {
+                const isSubmitted = work.status === 'submitted';
+                return `
+                <div class="bg-white rounded-2xl border ${isSubmitted ? 'border-emerald-200' : 'border-slate-200'} p-5 shadow-xs flex flex-col justify-between gap-4">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg">${work.course.split('•')[0]}</span>
+                            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase ${isSubmitted ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                                ${isSubmitted ? 'Submitted' : 'Pending'}
+                            </span>
+                        </div>
+                        <h4 class="font-bold text-base text-slate-900 leading-snug">${work.title}</h4>
+                        <p class="text-xs text-slate-500 mt-2 leading-relaxed">${work.desc}</p>
+                        ${isSubmitted && work.submissionText ? `
+                            <div class="mt-3 p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-100 text-xs text-emerald-800">
+                                <strong>Your Submission:</strong> ${work.submissionText}
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                        <div class="text-xs text-slate-500">
+                            <span class="font-semibold text-slate-700">${work.marks} Marks</span> • ${work.due}
+                        </div>
+                        ${isSubmitted
+                            ? `<span class="text-xs font-bold text-emerald-600"><i class="fa-solid fa-circle-check mr-1"></i>Done</span>`
+                            : `<button onclick="openSubmitModal(${work.id})" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold cursor-pointer">Submit Online</button>`
+                        }
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function filterWorks(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.work-filter-btn').forEach(btn => {
+                if (btn.dataset.filter === filter) {
+                    btn.className = 'work-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white cursor-pointer';
+                } else {
+                    btn.className = 'work-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer';
+                }
+            });
+            renderAssignments();
+        }
+
+        function renderCourses() {
+            const grid = document.getElementById('courses-grid');
+            grid.innerHTML = coursesData.map(c => `
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold">${c.code}</span>
+                            <h4 class="font-bold text-lg text-slate-900 mt-2">${c.name}</h4>
+                            <p class="text-xs text-slate-500 mt-0.5">${c.instructor} • ${c.credits} Credit Hours</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs font-semibold mb-1.5">
+                            <span class="text-slate-500">Syllabus Completed</span>
+                            <span class="text-blue-600">${c.progress}%</span>
+                        </div>
+                        <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-blue-600 rounded-full" style="width: ${c.progress}%"></div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 pt-1">
+                        <button onclick="navigate('live-class')" class="flex-1 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold transition-all cursor-pointer">
+                            Class Room
+                        </button>
+                        <button onclick="showToast('Opening recorded lectures for ${c.code}...', 'info')" class="flex-1 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer">
+                            Recordings
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderLibrary() {
+            const query = (document.getElementById('library-search')?.value || '').toLowerCase();
+            const filtered = libraryData.filter(b => b.title.toLowerCase().includes(query) || b.author.toLowerCase().includes(query) || b.category.toLowerCase().includes(query));
+
+            document.getElementById('library-grid').innerHTML = filtered.map(book => `
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between gap-4">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-lg mb-3">
+                            <i class="fa-solid fa-file-pdf"></i>
+                        </div>
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-purple-600">${book.category}</span>
+                        <h4 class="font-bold text-sm text-slate-900 mt-1">${book.title}</h4>
+                        <p class="text-xs text-slate-500 mt-1">${book.author}</p>
+                    </div>
+                    <button onclick="showToast('Downloading ${book.title} (${book.size})...', 'success')" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center justify-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-download"></i> Download PDF (${book.size})
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function renderNotices() {
+            document.getElementById('notices-list').innerHTML = noticesData.map(n => `
+                <div class="bg-white rounded-2xl border ${n.urgent ? 'border-rose-200' : 'border-slate-200'} p-6 shadow-xs">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold ${n.urgent ? 'bg-rose-100 text-rose-700' : 'bg-blue-50 text-blue-700'}">${n.tag}</span>
+                        <span class="text-xs text-slate-400 font-medium">${n.date}</span>
+                    </div>
+                    <h4 class="font-bold text-base sm:text-lg text-slate-900">${n.title}</h4>
+                    <p class="text-sm text-slate-600 mt-1.5 leading-relaxed">${n.body}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderLiveChat() {
+            const box = document.getElementById('live-chat-messages');
+            box.innerHTML = chatMessages.map(m => `
+                <div class="p-3 rounded-xl ${m.role === 'faculty' ? 'bg-blue-50 border border-blue-100' : 'bg-white border border-slate-200/80'}">
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <span class="text-xs font-bold ${m.role === 'faculty' ? 'text-blue-700' : 'text-slate-800'}">
+                            ${m.sender} ${m.role === 'faculty' ? '<span class="ml-1 px-1.5 py-0.5 text-[10px] bg-blue-600 text-white rounded">Faculty</span>' : ''}
+                        </span>
+                        <span class="text-[10px] text-slate-400">${m.time}</span>
+                    </div>
+                    <p class="text-xs text-slate-700 leading-relaxed">${m.text}</p>
+                </div>
+            `).join('');
+            box.scrollTop = box.scrollHeight;
+        }
+
+        // --- Interactive Features ---
+        function sendLiveChat(e) {
+            e.preventDefault();
+            const input = document.getElementById('live-chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const senderName = currentRole === 'faculty' ? 'Prof. Dr. Sarah Ahmed' : 'Ali Zain';
+            chatMessages.push({
+                sender: senderName,
+                role: currentRole,
+                text: text,
+                time: 'Just now'
+            });
+            input.value = '';
+            renderLiveChat();
+        }
+
+        function toggleMediaBtn(btn, label) {
+            const isMuted = btn.innerText.includes('Muted') || btn.innerText.includes('Off');
+            if (isMuted) {
+                btn.innerHTML = `<i class="fa-solid fa-${label === 'Mic' ? 'microphone' : 'video'} text-emerald-400"></i> <span>${label} On</span>`;
+                showToast(`${label} enabled in classroom`, 'info');
+            } else {
+                btn.innerHTML = `<i class="fa-solid fa-${label === 'Mic' ? 'microphone-slash' : 'video-slash'} text-rose-400"></i> <span>${label === 'Mic' ? 'Muted' : 'Cam Off'}</span>`;
+                showToast(`${label} turned off`, 'info');
+            }
+        }
+
+        function raiseHand() {
+            showToast('Hand raised! Prof. Dr. Sarah Ahmed has been notified.', 'info');
+        }
+
+        function markAttendance() {
+            if (attendanceMarked) {
+                showToast('Your attendance for CS-302 is already recorded!', 'info');
+                return;
+            }
+            attendanceMarked = true;
+            const btn = document.getElementById('attendance-btn');
+            btn.className = 'px-4 py-2.5 rounded-xl bg-slate-700 text-emerald-400 text-xs sm:text-sm font-semibold flex items-center gap-2 cursor-default';
+            btn.innerHTML = '<i class="fa-solid fa-check-double"></i> <span>Present Recorded</span>';
+            showToast('Attendance marked Present for CS-302!', 'success');
+        }
+
+        // --- Modal & Assignment Submission ---
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function openSubmitModal(workId) {
+            const work = worksData.find(w => w.id === workId);
+            if (!work) return;
+            document.getElementById('submit-work-id').value = work.id;
+            document.getElementById('submit-work-title').textContent = work.title;
+            document.getElementById('submit-work-course').textContent = `${work.course} • Max Marks: ${work.marks}`;
+            document.getElementById('submit-work-text').value = '';
+            openModal('submit-work-modal');
+        }
+
+        function handleWorkSubmission(e) {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('submit-work-id').value, 10);
+            const text = document.getElementById('submit-work-text').value.trim();
+            const fileInput = document.getElementById('submit-work-file');
+            const fileName = fileInput.files.length > 0 ? ` [Attached: ${fileInput.files[0].name}]` : '';
+
+            const work = worksData.find(w => w.id === id);
+            if (work) {
+                work.status = 'submitted';
+                work.due = 'Submitted Just Now';
+                work.submissionText = text + fileName;
+            }
+
+            closeModal('submit-work-modal');
+            renderDashboard();
+            renderAssignments();
+            showToast('Work submitted online successfully!', 'success');
+        }
+
+        function handleCreateWork(e) {
+            e.preventDefault();
+            const course = document.getElementById('new-work-course').value;
+            const title = document.getElementById('new-work-title').value.trim();
+            const due = document.getElementById('new-work-due').value.trim();
+            const marks = parseInt(document.getElementById('new-work-marks').value, 10) || 20;
+            const desc = document.getElementById('new-work-desc').value.trim();
+
+            worksData.unshift({
+                id: Date.now(),
+                course,
+                title,
+                due,
+                marks,
+                status: 'pending',
+                desc
+            });
+
+            e.target.reset();
+            closeModal('create-work-modal');
+            renderDashboard();
+            renderAssignments();
+            showToast('New online task published to students!', 'success');
+        }
+
+        // --- Custom Toast Notification System ---
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const colors = {
+                success: 'bg-emerald-600 text-white',
+                info: 'bg-slate-900 text-white',
+                warning: 'bg-amber-600 text-white'
+            };
+            const icons = {
+                success: 'fa-circle-check',
+                info: 'fa-circle-info',
+                warning: 'fa-triangle-exclamation'
+            };
+
+            toast.className = `${colors[type] || colors.info} px-4 py-3 rounded-xl shadow-lg text-xs sm:text-sm font-medium flex items-center gap-2.5 transform transition-all duration-300 translate-y-2 opacity-0 pointer-events-auto`;
+            toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3200);
+        }
+
+        // --- Initialize App ---
+        window.addEventListener('DOMContentLoaded', () => {
+            renderDashboard();
+            renderAssignments();
+            renderCourses();
+            renderLibrary();
+            renderNotices();
+            renderLiveChat();
+        });
+    </script>
+</body>
+</html>
